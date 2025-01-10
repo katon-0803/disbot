@@ -6,8 +6,8 @@ import datetime
 import pytz
 
 # グローバル変数として時間指定を定義
-TARGET_HOUR = 8
-TARGET_MINUTE = 0
+TARGET_HOUR = 4
+TARGET_MINUTE = 24
 JST = pytz.timezone('Asia/Tokyo')
 
 
