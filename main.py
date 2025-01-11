@@ -5,6 +5,8 @@ import datetime
 import pytz
 import aiohttp
 import json
+from discord import Intents, Client, Interaction
+from discord.app_commands import CommandTree, describe
 from discord import app_commands
 from keep import keep_alive
 
@@ -42,7 +44,6 @@ class MyClient(discord.Client):
         await self.change_presence(status=discord.Status.online, activity=custom_activity)
         self.session = aiohttp.ClientSession()
         await self.tree.sync(guild=discord.Object(id=1098314184233595000))
-        asyncio.sleep(1)
         print(f"Command tree: {self.tree.get_commands()}")
         self.loop.create_task(self.scheduled_post())
 
@@ -136,33 +137,6 @@ class MyClient(discord.Client):
                 print(f"Error getting poll results: {response.status}")
                 await channel.send("投票結果の取得に失敗しました。")
 
-    @app_commands.command(name="time_set", description="投稿時間を設定します。")
-    @app_commands.describe(hour="時間", minute="分")
-    async def time_setting(self, interaction: discord.Interaction, hour: int, minute: int):
-        print(f"command {interaction.command.name} is called")
-        if 0 <= hour <= 23 and 0 <= minute <= 59:
-                self.TARGET_HOUR = hour
-                self.TARGET_MINUTE = minute
-                self.target_time = self.calculate_target_time()
-                await interaction.response.send_message(f"投稿時間を{hour}時{minute}分に設定しました。",ephemeral=True)
-        else:
-                await interaction.response.send_message("無効な時間です。",ephemeral=True)
-
-    @app_commands.command(name="debug_poll", description="デバッグ用の投票を開始します。")
-    async def debug_poll(self, interaction: discord.Interaction):
-        print(f"command {interaction.command.name} is called")
-        channel = interaction.channel
-        poll_data = await self.create_poll(channel)
-        if poll_data:
-            await interaction.response.send_message("デバッグ用投票を開始しました。", ephemeral=True)
-
-    @app_commands.command(name="channel_set", description="投票機能を行うテキストチャンネルを設定します。")
-    @app_commands.describe(channel_name="チャンネル名")
-    async def set_poll_channel(self, interaction: discord.Interaction, channel_name: str):
-        print(f"command {interaction.command.name} is called")
-        self.poll_channel_name = channel_name
-        await interaction.response.send_message(f"投票チャンネルを {channel_name} に設定しました。", ephemeral=True)
-
     async def scheduled_post(self):
         await self.wait_until_ready()
 
@@ -187,6 +161,34 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 client = MyClient(intents=intents)
+
+@client.tree.command(name="time_set", description="投稿時間を設定します。")
+@describe(hour="時間", minute="分")
+async def time_setting(interaction: Interaction, hour: int, minute: int):
+    print(f"command {interaction.command.name} is called")
+    if 0 <= hour <= 23 and 0 <= minute <= 59:
+        client.TARGET_HOUR = hour
+        client.TARGET_MINUTE = minute
+        client.target_time = client.calculate_target_time()
+        await interaction.response.send_message(f"投稿時間を{hour}時{minute}分に設定しました。",ephemeral=True)
+    else:
+        await interaction.response.send_message("無効な時間です。",ephemeral=True)
+
+@client.tree.command(name="debug_poll", description="デバッグ用の投票を開始します。")
+async def debug_poll(interaction: Interaction):
+    print(f"command {interaction.command.name} is called")
+    channel = interaction.channel
+    poll_data = await client.create_poll(channel)
+    if poll_data:
+        await interaction.response.send_message("デバッグ用投票を開始しました。", ephemeral=True)
+
+@client.tree.command(name="channel_set", description="投票機能を行うテキストチャンネルを設定します。")
+@describe(channel_name="チャンネル名")
+async def set_poll_channel(interaction: Interaction, channel_name: str):
+    print(f"command {interaction.command.name} is called")
+    client.poll_channel_name = channel_name
+    await interaction.response.send_message(f"投票チャンネルを {channel_name} に設定しました。", ephemeral=True)
+
 keep_alive()
 try:
     client.run(os.getenv('TOKEN'))
