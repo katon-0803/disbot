@@ -42,6 +42,7 @@ class MyClient(discord.Client):
         await self.change_presence(status=discord.Status.online, activity=custom_activity)
         self.session = aiohttp.ClientSession()
         await self.tree.sync()
+        print(f"Command tree: {self.tree.get_commands()}")
         self.loop.create_task(self.scheduled_post())
 
     async def close(self):
@@ -137,6 +138,7 @@ class MyClient(discord.Client):
     @app_commands.command(name="time_set", description="投稿時間を設定します。")
     @app_commands.describe(hour="時間", minute="分")
     async def time_setting(self, interaction: discord.Interaction, hour: int, minute: int):
+        print(f"command {interaction.command.name} is called")
         if 0 <= hour <= 23 and 0 <= minute <= 59:
                 self.TARGET_HOUR = hour
                 self.TARGET_MINUTE = minute
@@ -147,14 +149,16 @@ class MyClient(discord.Client):
 
     @app_commands.command(name="debug_poll", description="デバッグ用の投票を開始します。")
     async def debug_poll(self, interaction: discord.Interaction):
-            channel = interaction.channel
-            poll_data = await self.create_poll(channel)
-            if poll_data:
-                await interaction.response.send_message("デバッグ用投票を開始しました。", ephemeral=True)
+        print(f"command {interaction.command.name} is called")
+        channel = interaction.channel
+        poll_data = await self.create_poll(channel)
+        if poll_data:
+            await interaction.response.send_message("デバッグ用投票を開始しました。", ephemeral=True)
 
     @app_commands.command(name="channel_set", description="投票機能を行うテキストチャンネルを設定します。")
     @app_commands.describe(channel_name="チャンネル名")
     async def set_poll_channel(self, interaction: discord.Interaction, channel_name: str):
+        print(f"command {interaction.command.name} is called")
         self.poll_channel_name = channel_name
         await interaction.response.send_message(f"投票チャンネルを {channel_name} に設定しました。", ephemeral=True)
 
