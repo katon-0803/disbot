@@ -41,7 +41,8 @@ class MyClient(discord.Client):
         custom_activity = discord.CustomActivity(name="今日も工場勤務")
         await self.change_presence(status=discord.Status.online, activity=custom_activity)
         self.session = aiohttp.ClientSession()
-        await self.tree.sync()
+        await self.tree.sync(guild=discord.Object(id=1098314184233595000))
+        asyncio.sleep(1)
         print(f"Command tree: {self.tree.get_commands()}")
         self.loop.create_task(self.scheduled_post())
 
