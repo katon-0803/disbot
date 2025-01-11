@@ -12,8 +12,8 @@ JST = pytz.timezone('Asia/Tokyo')
 TOKEN = os.getenv('TOKEN')
 
 class MyClient(discord.Client):
-    TARGET_HOUR = 16
-    TARGET_MINUTE = 35
+    TARGET_HOUR = 8
+    TARGET_MINUTE = 30
     poll_channel_name = "募集"
 
     def __init__(self, *args, **kwargs):
