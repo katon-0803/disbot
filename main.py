@@ -6,6 +6,7 @@ import pytz
 import aiohttp
 import json
 from discord import app_commands
+from keep import keep_alive
 
 JST = pytz.timezone('Asia/Tokyo')
 TOKEN = os.getenv('TOKEN')
@@ -181,4 +182,8 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 client = MyClient(intents=intents)
-client.run(os.getenv('TOKEN'))
+keep_alive()
+try:
+    client.run(os.getenv('TOKEN'))
+except:
+    os.system("kill 1")
