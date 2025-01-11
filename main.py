@@ -18,7 +18,7 @@ class MyClient(discord.Client):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.tree = app_commands.CommandTree(self)
+        self.tree = discord.app_commands.CommandTree(self)
         self.target_time = self.calculate_target_time()
         self.posted_today = False  # 今日投稿したかどうかのフラグ
         self.session = None  # aiohttp sessionを初期化
@@ -190,4 +190,4 @@ keep_alive()
 try:
     client.run(os.getenv('TOKEN'))
 except:
-    os.system("kill 1")
+    os.system("kill")
