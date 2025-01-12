@@ -92,7 +92,7 @@ class MyClient(discord.Client):
 
 
     async def create_poll(self, channel, message_id):
-        url = f"https://discord.com/api/v9/channels/{channel.id}/messages/{message_id}/poll"
+        url = f"https://discord.com/api/v9/channels/{channel.id}/messages"
         headers = {"Authorization": f"Bot {TOKEN}", "Content-Type": "application/json"}
 
         payload = {
