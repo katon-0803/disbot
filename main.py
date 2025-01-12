@@ -165,7 +165,7 @@ class MyClient(discord.Client):
                 if channel:
                     mention_id = await self.send_mention(channel)
                     if mention_id:
-                        poll_data =await self.create_poll(channel,mention_id)
+                        poll_data = await self.create_poll(channel, mention_id)
                         if poll_data:
                             self.posted_today = True
                 else:
@@ -198,7 +198,9 @@ async def time_setting(interaction: Interaction, hour: int, minute: int):
 async def debug_poll(interaction: Interaction):
     print(f"command {interaction.command.name} is called")
     channel = interaction.channel
-    poll_data = await client.create_poll(channel)
+    # まずメッセージを送信し、そのメッセージIDを使って投票を作成する
+    sent_message = await channel.send("デバッグ用投票を開始します。")
+    poll_data = await client.create_poll(channel, sent_message.id) #ここでmessage_idを渡している
     if poll_data:
         await interaction.response.send_message("デバッグ用投票を開始しました。", ephemeral=True)
 
