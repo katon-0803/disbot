@@ -79,7 +79,7 @@ class MyClient(discord.Client):
 
         payload = {
             "poll": {
-                "question": {"text": self.text},
+                "question": {"text":f"@everyone {self.text}"},
                 "answers": [
                     {
                         "poll_media": {
