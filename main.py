@@ -73,13 +73,31 @@ class MyClient(discord.Client):
             await self.get_poll_results(message.channel, self.poll_message_id)
 
 
-    async def create_poll(self, channel):
+    async def send_mention(self, channel):
         url = f"https://discord.com/api/v9/channels/{channel.id}/messages"
+        headers = {"Authorization": f"Bot {TOKEN}", "Content-Type": "application/json"}
+        # payload = {"content": "@everyone " + self.text}
+        payload = {"content": "@everyone "}
+        async with self.session.post(
+            url, headers=headers, data=json.dumps(payload)
+        ) as response:
+            if response.status == 200:
+                data = await response.json()
+                print(f"Mention sent successfully! Message ID: {data['id']}")
+                return data["id"]
+            else:
+                error_data = await response.text()
+                print(f"Error sending mention: {response.status} - {error_data}")
+                return None
+
+
+    async def create_poll(self, channel, message_id):
+        url = f"https://discord.com/api/v9/channels/{channel.id}/messages/{message_id}/poll"
         headers = {"Authorization": f"Bot {TOKEN}", "Content-Type": "application/json"}
 
         payload = {
             "poll": {
-                "question": {"text":f"@everyone {self.text}"},
+                "question": {"text":self.text},
                 "answers": [
                     {
                         "poll_media": {
@@ -89,7 +107,7 @@ class MyClient(discord.Client):
                     },
                     {
                         "poll_media": {
-                            "text": "不参加",
+                            "text": "参加しない",
                             "emoji": {"name": "❌"},
                         }
                     },
@@ -103,7 +121,7 @@ class MyClient(discord.Client):
         ) as response:
             if response.status == 200:
                 data = await response.json()
-                self.poll_message_id = data["id"]
+                self.poll_message_id = message_id
                 print(f"Poll created successfully! Message ID: {self.poll_message_id}")
                 return data
             else:
@@ -145,9 +163,11 @@ class MyClient(discord.Client):
             if now_jst >= self.target_time and not self.posted_today:
                 channel = discord.utils.get(self.get_all_channels(), name=self.poll_channel_name)
                 if channel:
-                    poll_data = await self.create_poll(channel)
-                    if poll_data:
-                        self.posted_today = True
+                    mention_id = await self.send_mention(channel)
+                    if mention_id:
+                        poll_data =await self.create_poll(channel,mention_id)
+                        if poll_data:
+                            self.posted_today = True
                 else:
                     print(f"{self.poll_channel_name}チャンネルが見つかりません。")
 
