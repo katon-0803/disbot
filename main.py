@@ -5,6 +5,7 @@ import datetime
 import pytz
 import aiohttp
 import json
+import random
 from discord import Intents, Client, Interaction
 from discord.app_commands import CommandTree, describe
 from discord import app_commands
@@ -210,6 +211,13 @@ async def set_poll_channel(interaction: Interaction, channel_name: str):
     print(f"command {interaction.command.name} is called")
     client.poll_channel_name = channel_name
     await interaction.response.send_message(f"投票チャンネルを {channel_name} に設定しました。", ephemeral=True)
+
+@client.tree.command(name="dice", description="1~100のダイスを振ります")
+async def dice(interaction: Interaction):
+    print(f"command {interaction.command.name} is called")
+    dice_result = random.randint(1,100)
+    # 結果を送信
+    await interaction.response.send_message(f"ダイスの結果: {dice_result}", ephemeral=False) # ephemeraを
 
 keep_alive()
 try:
